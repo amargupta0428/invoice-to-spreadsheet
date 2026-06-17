@@ -1,0 +1,128 @@
+// Generates three visually distinct sample invoice PDFs into /public/samples,
+// matching the precomputed results in lib/samples.ts. Run: npm run samples
+import PDFDocument from "pdfkit";
+import { createWriteStream, mkdirSync } from "node:fs";
+import { fileURLToPath } from "node:url";
+import { dirname, join } from "node:path";
+
+const outDir = join(dirname(fileURLToPath(import.meta.url)), "..", "public", "samples");
+mkdirSync(outDir, { recursive: true });
+
+function write(name, build) {
+  const doc = new PDFDocument({ size: "LETTER", margin: 50 });
+  doc.pipe(createWriteStream(join(outDir, name)));
+  build(doc);
+  doc.end();
+  console.log("wrote", name);
+}
+
+const money = (n) => "$" + n.toFixed(2);
+
+// 1) Northwind — clean classic layout, right-aligned totals.
+write("northwind-invoice.pdf", (d) => {
+  d.fontSize(22).fillColor("#1a3a5c").text("Northwind Supply Co.", 50, 50);
+  d.fontSize(9).fillColor("#666").text("418 Commerce Ave, Suite 200, Chicago, IL 60607");
+  d.text("billing@northwindsupply.com  ·  (312) 555-0142");
+  d.fontSize(26).fillColor("#1a3a5c").text("INVOICE", 400, 50, { align: "right" });
+  d.fontSize(9).fillColor("#000")
+    .text("Invoice #: INV-20418", 300, 90, { align: "right" })
+    .text("Date: 05/12/2026", { align: "right" })
+    .text("Due: 06/11/2026   (Net 30)", { align: "right" });
+
+  d.fillColor("#000").fontSize(10).text("Bill To:", 50, 150);
+  d.fillColor("#444").text("Riverside Dental Group\n77 Lakeshore Dr, Evanston, IL 60201", 50, 165);
+
+  let y = 230;
+  d.fillColor("#fff").rect(50, y, 510, 22).fill("#1a3a5c");
+  d.fillColor("#fff").fontSize(9)
+    .text("DESCRIPTION", 58, y + 6)
+    .text("QTY", 360, y + 6)
+    .text("UNIT", 420, y + 6)
+    .text("AMOUNT", 490, y + 6);
+  y += 30;
+  const rows = [
+    ["Nitrile exam gloves (case of 1000)", 6, 42.0, 252.0],
+    ["Surface disinfectant wipes (tub)", 12, 8.5, 102.0],
+    ['Autoclave pouches 3.5" x 9" (box)', 4, 17.25, 69.0],
+    ["Saliva ejectors (bag of 100)", 10, 3.4, 34.0],
+  ];
+  d.fillColor("#000").fontSize(9);
+  for (const [desc, q, u, a] of rows) {
+    d.text(desc, 58, y).text(String(q), 360, y).text(money(u), 420, y).text(money(a), 480, y, { width: 70, align: "right" });
+    y += 20;
+  }
+  y += 10;
+  d.fontSize(9).fillColor("#444");
+  d.text("Subtotal:", 380, y).text(money(457.0), 480, y, { width: 70, align: "right" }); y += 16;
+  d.text("Tax (8.25%):", 380, y).text(money(37.7), 480, y, { width: 70, align: "right" }); y += 16;
+  d.text("Shipping:", 380, y).text(money(14.95), 480, y, { width: 70, align: "right" }); y += 18;
+  d.fontSize(11).fillColor("#1a3a5c").text("TOTAL:", 380, y).text(money(509.65), 470, y, { width: 80, align: "right" });
+});
+
+// 2) Lumen — modern minimalist layout, EUR, discount line.
+write("lumen-invoice.pdf", (d) => {
+  d.rect(0, 0, 612, 8).fill("#e8674a");
+  d.fontSize(28).fillColor("#222").text("lumen", 50, 60);
+  d.fontSize(8).fillColor("#999").text("CREATIVE STUDIO", 52, 92, { characterSpacing: 2 });
+  d.fontSize(9).fillColor("#666").text("Prinsengracht 263, 1016 GV Amsterdam, Netherlands", 50, 115);
+  d.text("hello@lumencreative.nl");
+
+  d.fontSize(9).fillColor("#000")
+    .text("Invoice 2026-0337", 350, 60, { align: "right" })
+    .text("Issued 28 Apr 2026", { align: "right" })
+    .text("Due within 14 days", { align: "right" });
+
+  d.fillColor("#999").fontSize(8).text("BILLED TO", 50, 165, { characterSpacing: 1 });
+  d.fillColor("#222").fontSize(10).text("Bright Path Coaching", 50, 178);
+  d.fillColor("#666").fontSize(9).text("14 Hillcrest Rd, London W1U 8EW, UK");
+
+  let y = 240;
+  d.moveTo(50, y).lineTo(560, y).strokeColor("#ddd").stroke();
+  y += 10;
+  d.fillColor("#999").fontSize(8).text("DESCRIPTION", 50, y).text("AMOUNT", 480, y, { width: 80, align: "right" });
+  y += 22;
+  const rows = [
+    ["Brand identity package", 2400.0],
+    ["Website design (5 pages)", 1800.0],
+    ["Stock photography license", 150.0],
+  ];
+  d.fillColor("#222").fontSize(10);
+  for (const [desc, a] of rows) {
+    d.text(desc, 50, y).text("€" + a.toFixed(2), 480, y, { width: 80, align: "right" });
+    y += 22;
+  }
+  y += 6;
+  d.moveTo(330, y).lineTo(560, y).strokeColor("#ddd").stroke();
+  y += 10;
+  d.fontSize(9).fillColor("#666");
+  d.text("Subtotal", 330, y).text("€4350.00", 480, y, { width: 80, align: "right" }); y += 16;
+  d.text("Loyalty discount", 330, y).text("−€225.00", 480, y, { width: 80, align: "right" }); y += 16;
+  d.text("VAT (21%)", 330, y).text("€866.25", 480, y, { width: 80, align: "right" }); y += 20;
+  d.fontSize(12).fillColor("#e8674a").text("Total  €4991.25", 330, y, { width: 230, align: "right" });
+});
+
+// 3) Corner Hardware — looks like a faint scanned thermal receipt (monospace, gray).
+write("handwritten-receipt.pdf", (d) => {
+  d.fillColor("#555").font("Courier");
+  d.fontSize(13).text("CORNER HARDWARE", { align: "center" });
+  d.fontSize(8).text("South Main St, Brooklyn, NY", { align: "center" });
+  d.text("Receipt #0098471", { align: "center" });
+  d.text("06/03/2026   14:22", { align: "center" });
+  d.moveDown();
+  d.text("--------------------------------");
+  const rows = [
+    ["2x4 lumber stud      8 @ 4.18", "33.44"],
+    ["Wood screws #8 box   2 @ 9.99", "19.98"],
+    ["Construction adhesive  1", "6.49"],
+  ];
+  for (const [l, r] of rows) {
+    d.text(l + " ".repeat(Math.max(1, 32 - l.length - r.length)) + r);
+  }
+  d.text("--------------------------------");
+  d.text("SUBTOTAL                   59.91");
+  d.text("TAX                         5.32");
+  d.text("TOTAL                      65.23");
+  d.moveDown();
+  d.text("        PAID - CASH", { align: "center" });
+  d.fontSize(7).text("thank you!", { align: "center" });
+});
