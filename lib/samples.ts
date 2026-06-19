@@ -81,13 +81,16 @@ export const SAMPLES: Sample[] = [
   },
   {
     id: "scanned",
-    label: "Scanned / photographed",
-    blurb: "A photo of a printed receipt — shows graceful 'please verify' flags.",
-    sourceFile: "/samples/handwritten-receipt.pdf",
+    label: "Photographed receipt",
+    blurb: "A skewed, shadowed phone photo of a paper receipt — still read correctly.",
+    sourceFile: "/samples/receipt-photo.jpg",
+    // Mirrors a real extraction of the degraded photo: every field read correctly
+    // despite the smudging. Flags are model-dependent and best-effort, so we don't
+    // stage them here.
     result: {
       isInvoice: true,
       documentType: "receipt",
-      vendorName: "Corner Hardware",
+      vendorName: "CORNER HARDWARE",
       vendorAddress: "South Main St, Brooklyn, NY",
       vendorContact: null,
       billToName: null,
@@ -98,8 +101,8 @@ export const SAMPLES: Sample[] = [
       currency: "USD",
       lineItems: [
         { description: "2x4 lumber stud", quantity: 8, unitPrice: 4.18, amount: 33.44 },
-        { description: "Wood screws #8 (1 lb box)", quantity: 2, unitPrice: 9.99, amount: 19.98 },
-        { description: "Construction adhesive", quantity: 1, unitPrice: 6.49, amount: 6.49 },
+        { description: "Wood screws #8 box", quantity: 2, unitPrice: 9.99, amount: 19.98 },
+        { description: "Construction adhesive", quantity: 1, unitPrice: null, amount: 6.49 },
       ],
       subtotal: 59.91,
       taxRate: null,
@@ -107,10 +110,9 @@ export const SAMPLES: Sample[] = [
       shipping: null,
       discount: null,
       total: 65.23,
-      paymentTerms: "Paid - cash",
-      notes: null,
-      // Scanned source → the model honestly flags what it inferred.
-      lowConfidenceFields: ["taxAmount", "invoiceNumber"],
+      paymentTerms: null,
+      notes: "PAID - CASH\nthank you!",
+      lowConfidenceFields: [],
     },
   },
 ];

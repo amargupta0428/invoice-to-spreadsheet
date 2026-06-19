@@ -22,16 +22,19 @@ This tool reads invoices the way a person does — so a layout it has never seen
 | --- | --- |
 | ![Clean vendor invoice input](docs/screenshots/input-invoice.png) | ![Extracted result](docs/screenshots/result.png) |
 
-**2. A scanned receipt — where it flags uncertainty for review**
+**2. A photographed receipt — a genuinely messy input**
 
-The harder, real-world case. On a low-quality scan the model extracts what it can and marks
-the fields it isn't sure about with a "verify" flag — here, the receipt number and the tax —
-instead of silently guessing. That's the difference between a parlor trick and something a
-business can actually trust with its books.
+The harder, real-world case: a hurried phone photo — skewed, shadowed, with the receipt
+number and tax amount visibly smudged. The model still reads every field correctly, and
+leaves anything it genuinely can't make out blank rather than guessing.
 
-| Input: scanned / photographed receipt | Output: extracted data, low-confidence fields flagged |
+| Input: photographed receipt | Output: every field extracted correctly |
 | --- | --- |
-| ![Scanned receipt input](docs/screenshots/receipt-input.png) | ![Extracted result with verify flags](docs/screenshots/receipt-result.png) |
+| ![Photographed receipt input](public/samples/receipt-photo.jpg) | ![Correct extraction of the photographed receipt](docs/screenshots/receipt-result.png) |
+
+It will also flag fields it's unsure about for review, but that's a best-effort signal from
+the model, not a guarantee — so the rule of thumb stays: spot-check the numbers before they
+hit accounting.
 
 *Real output from the running tool — upload a file, get the extracted table, download CSV/Excel.*
 
@@ -43,8 +46,9 @@ business can actually trust with its books.
 3. **Validate** — the model's response is forced into a [Zod schema](lib/schema.ts)
    (vendor, bill-to, dates, currency, line items, subtotal/tax/total, terms). Output that
    doesn't fit the schema is rejected and retried, so the shape is always predictable.
-4. **Review** — fields the model wasn't confident about (e.g. a blurry scan) are flagged
-   in the UI for a human to verify, instead of being silently guessed.
+4. **Review** — the model flags fields it's unsure about for a human to verify (a
+   best-effort, model-dependent signal), and leaves anything it genuinely can't read blank
+   rather than guessing.
 5. **Export** — one click to CSV or a formatted `.xlsx`.
 
 ## Reliability choices
@@ -53,8 +57,10 @@ The hard part of a tool people actually trust is the unhappy path. This one:
 
 - **Constrains output to a schema** (`generateObject` + Zod) so downstream code always gets
   the same shape, with numbers as numbers and dates normalized.
-- **Surfaces uncertainty** via a `lowConfidenceFields` list the model populates — the UI
-  shows those values in amber with a "verify" tag rather than presenting a guess as fact.
+- **Surfaces uncertainty (best-effort)** — the model can populate a `lowConfidenceFields`
+  list, shown in amber with a "verify" tag, to point a reviewer at anything it wasn't sure
+  about. It's a model-dependent signal, not a guarantee — and unreadable fields are left
+  blank rather than guessed.
 - **Handles non-invoices** — upload a resume or a letter and it says so (`isInvoice: false`)
   instead of returning garbage.
 - **Guards the endpoint** — per-IP rate limiting, an 8 MB size cap, and a PDF/PNG/JPG
