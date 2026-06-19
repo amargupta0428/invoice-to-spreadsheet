@@ -1,28 +1,43 @@
 import Link from "next/link";
+import Image from "next/image";
 import { site } from "@/lib/config";
 
-function VideoEmbed() {
-  const url = site.demoVideoUrl;
-  if (!url) {
-    return (
-      <div className="flex aspect-video w-full items-center justify-center rounded-xl border-2 border-dashed border-zinc-300 bg-zinc-50 text-center text-sm text-zinc-400">
-        <div>
-          <p className="font-medium text-zinc-500">Walkthrough video goes here</p>
-          <p className="mt-1">Record a 60–90s screen capture, then set <code>demoVideoUrl</code> in <code>lib/config.ts</code>.</p>
-        </div>
-      </div>
-    );
-  }
-  if (url.endsWith(".mp4")) {
-    return <video controls className="aspect-video w-full rounded-xl border border-zinc-200" src={url} />;
-  }
+// Real input → output screenshots from the running tool (the two README pairs).
+// Assets live in /public so they render on the deployed site, not just GitHub.
+const PROOF = [
+  {
+    title: "A clean vendor invoice",
+    blurb: "The everyday case — read into a structured table in seconds.",
+    input: { src: "/proof/input-invoice.png", w: 1081, h: 820, alt: "A vendor's invoice PDF" },
+    output: { src: "/proof/result.png", w: 729, h: 941, alt: "The invoice extracted into a structured table" },
+  },
+  {
+    title: "A photographed receipt",
+    blurb: "A skewed, shadowed phone photo — every legible field still read correctly.",
+    input: { src: "/samples/receipt-photo.jpg", w: 866, h: 860, alt: "A phone photo of a paper receipt" },
+    output: { src: "/proof/receipt-result.png", w: 729, h: 904, alt: "The receipt extracted into a structured table" },
+  },
+];
+
+function ScreenshotProof() {
   return (
-    <iframe
-      className="aspect-video w-full rounded-xl border border-zinc-200"
-      src={url}
-      allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
-      allowFullScreen
-    />
+    <div className="space-y-12">
+      {PROOF.map((p) => (
+        <div key={p.title}>
+          <h3 className="text-lg font-medium">{p.title}</h3>
+          <p className="mb-4 text-sm text-zinc-500">{p.blurb}</p>
+          <div className="grid items-start gap-4 sm:grid-cols-[1fr_auto_1fr]">
+            <figure className="overflow-hidden rounded-xl border border-zinc-200 bg-white">
+              <Image src={p.input.src} width={p.input.w} height={p.input.h} alt={p.input.alt} className="w-full" style={{ height: "auto" }} />
+            </figure>
+            <div className="hidden self-center text-2xl text-zinc-300 sm:block">→</div>
+            <figure className="overflow-hidden rounded-xl border border-zinc-200 bg-white">
+              <Image src={p.output.src} width={p.output.w} height={p.output.h} alt={p.output.alt} className="w-full" style={{ height: "auto" }} />
+            </figure>
+          </div>
+        </div>
+      ))}
+    </div>
   );
 }
 
@@ -96,10 +111,7 @@ export default function Home() {
           scans — and turns it into clean, exportable spreadsheet data automatically.
         </p>
         <div className="mt-8 flex flex-wrap items-center justify-center gap-3">
-          <a href="#video" className="rounded-lg bg-zinc-900 px-5 py-2.5 text-sm font-medium text-white hover:bg-zinc-700">
-            Watch the 90-second demo
-          </a>
-          <Link href="/demo" className="rounded-lg border border-zinc-300 px-5 py-2.5 text-sm font-medium text-zinc-700 hover:bg-zinc-50">
+          <Link href="/demo" className="rounded-lg bg-zinc-900 px-5 py-2.5 text-sm font-medium text-white hover:bg-zinc-700">
             Open the live tool →
           </Link>
         </div>
@@ -110,18 +122,13 @@ export default function Home() {
         <BeforeAfter />
       </section>
 
-      {/* Video */}
-      <section id="video" className="mx-auto max-w-3xl scroll-mt-8 px-5 py-12">
+      {/* Screenshot proof */}
+      <section className="mx-auto max-w-4xl px-5 py-12">
         <h2 className="mb-1 text-center text-2xl font-semibold">See it work</h2>
-        <p className="mb-6 text-center text-sm text-zinc-500">A real invoice, start to finish.</p>
-        <VideoEmbed />
-        <p className="mt-4 text-center text-sm text-zinc-500">
-          Want to see it on <em>your</em> invoices?{" "}
-          <a href={site.upworkProfileUrl} target="_blank" rel="noopener noreferrer" className="font-medium text-zinc-900 underline">
-            Book a quick call
-          </a>{" "}
-          and I&apos;ll run a few through it live.
+        <p className="mb-10 text-center text-sm text-zinc-500">
+          Real output from the tool — messy input in, clean data out.
         </p>
+        <ScreenshotProof />
       </section>
 
       {/* How it works */}
@@ -152,29 +159,6 @@ export default function Home() {
               <p className="mt-1.5 text-sm leading-relaxed text-zinc-600">{f.d}</p>
             </div>
           ))}
-        </div>
-      </section>
-
-      {/* Contact CTA */}
-      <section id="contact" className="scroll-mt-8 border-t border-zinc-100 bg-zinc-900 text-white">
-        <div className="mx-auto max-w-3xl px-5 py-16 text-center">
-          <h2 className="text-3xl font-semibold">Have invoices piling up?</h2>
-          <p className="mx-auto mt-4 max-w-xl text-zinc-300">
-            I build automations that take the tedious data entry off your plate — tuned to your
-            documents, connected to your tools, and reliable on real volume. Tell me what&apos;s eating
-            your time and I&apos;ll show you exactly how this would work for you.
-          </p>
-          <a
-            href={site.upworkProfileUrl}
-            target="_blank"
-            rel="noopener noreferrer"
-            className="mt-8 inline-block rounded-lg bg-white px-6 py-3 text-sm font-medium text-zinc-900 hover:bg-zinc-200"
-          >
-            Let&apos;s talk on Upwork →
-          </a>
-          <p className="mt-4 text-xs text-zinc-500">
-            I&apos;ll walk you through it live and run a couple of your own invoices on the call.
-          </p>
         </div>
       </section>
 

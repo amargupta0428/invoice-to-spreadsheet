@@ -140,8 +140,8 @@ export function DemoClient() {
       <div className="mt-12 rounded-xl border border-zinc-200 bg-zinc-50 px-5 py-4 text-sm text-zinc-600">
         Want this wired into your accounting workflow, tuned to your vendors, and running on your
         real volume?{" "}
-        <Link href="/#contact" className="font-medium text-zinc-900 underline">
-          See how I can build it for you →
+        <Link href="/" className="font-medium text-zinc-900 underline">
+          See how it works →
         </Link>
       </div>
     </div>
