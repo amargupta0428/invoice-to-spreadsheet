@@ -69,13 +69,13 @@ function BeforeAfter() {
 
 const STEPS = [
   { n: "1", t: "Drop in the invoice", d: "PDF, scan, or phone photo — any vendor, any layout. No templates to configure." },
-  { n: "2", t: "AI reads every field", d: "Vendor, dates, line items, tax, totals — pulled into structured data, with anything uncertain flagged for review." },
+  { n: "2", t: "AI reads every field", d: "Vendor, dates, line items, tax, totals — pulled into structured data, with a best-effort flag on anything it's unsure about." },
   { n: "3", t: "Export clean data", d: "Download a tidy CSV or Excel file, or send it straight into your sheet, accounting tool, or CRM." },
 ];
 
 const TRUST = [
   { t: "Handles layouts it's never seen", d: "Built on a vision model, not brittle templates — so a new vendor's format just works instead of breaking the pipeline." },
-  { t: "Honest about uncertainty", d: "On a blurry scan it flags the fields it inferred for a human to verify, rather than silently guessing. Accuracy you can trust." },
+  { t: "Honest about uncertainty", d: "On a rough scan it does its best to flag fields it's unsure about, so you know where to double-check. A soft assist — always worth a quick spot-check of the numbers." },
   { t: "Reads scans & photos", d: "Not just clean digital PDFs — photographed and scanned receipts work too." },
   { t: "Built for your workflow", d: "The demo runs one invoice at a time. For your business I add batch processing across your full invoice volume, tune it to your vendor formats, and wire it into your accounting tools." },
 ];

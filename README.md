@@ -25,8 +25,7 @@ This tool reads invoices the way a person does — so a layout it has never seen
 **2. A photographed receipt — a genuinely messy input**
 
 The harder, real-world case: a hurried phone photo — skewed, shadowed, with the receipt
-number and tax amount visibly smudged. The model still reads every field correctly, and
-leaves anything it genuinely can't make out blank rather than guessing.
+number and tax amount visibly smudged. The model still reads every legible field correctly.
 
 | Input: photographed receipt | Output: every field extracted correctly |
 | --- | --- |
@@ -46,9 +45,9 @@ hit accounting.
 3. **Validate** — the model's response is forced into a [Zod schema](lib/schema.ts)
    (vendor, bill-to, dates, currency, line items, subtotal/tax/total, terms). Output that
    doesn't fit the schema is rejected and retried, so the shape is always predictable.
-4. **Review** — the model flags fields it's unsure about for a human to verify (a
-   best-effort, model-dependent signal), and leaves anything it genuinely can't read blank
-   rather than guessing.
+4. **Review** — a best-effort "verify" hint: the model may flag fields it's unsure about so a
+   reviewer knows where to look first. Treat it as an assist, not a guarantee that every
+   shaky field gets caught.
 5. **Export** — one click to CSV or a formatted `.xlsx`.
 
 ## Reliability choices
@@ -57,10 +56,11 @@ The hard part of a tool people actually trust is the unhappy path. This one:
 
 - **Constrains output to a schema** (`generateObject` + Zod) so downstream code always gets
   the same shape, with numbers as numbers and dates normalized.
-- **Surfaces uncertainty (best-effort)** — the model can populate a `lowConfidenceFields`
-  list, shown in amber with a "verify" tag, to point a reviewer at anything it wasn't sure
-  about. It's a model-dependent signal, not a guarantee — and unreadable fields are left
-  blank rather than guessed.
+- **Reads messy real-world inputs** — a new vendor's layout, a different currency, or a
+  skewed, shadowed phone photo: it still extracts the legible fields correctly.
+- **A best-effort "verify" hint** — the model can flag fields it's unsure about (shown in
+  amber via a `lowConfidenceFields` tag) to point a reviewer at them first. It's a soft
+  assist, not a guarantee that every shaky value gets caught.
 - **Handles non-invoices** — upload a resume or a letter and it says so (`isInvoice: false`)
   instead of returning garbage.
 - **Guards the endpoint** — per-IP rate limiting, an 8 MB size cap, and a PDF/PNG/JPG
@@ -87,9 +87,9 @@ through the Vercel AI Gateway (zero-config on Vercel). Override with `EXTRACTION
 
 - It's a **demo** focused on extraction quality for one document at a time. Cost is ~a cent
   or two per invoice on `gpt-4o`.
-- Accuracy is high on clean documents; very low-quality scans can still misread a field —
-  which is exactly why low-confidence flagging exists. **Numbers should be spot-checked**
-  before they hit accounting.
+- Accuracy is high on clean documents; very low-quality scans can still misread a field, and
+  the automatic uncertainty flagging is best-effort — it won't catch every shaky value. So
+  **spot-check the numbers** before they hit accounting.
 - No persistence, auth, or accounting-system integration in the demo. A real client build
   adds **batch processing across your full invoice volume**, tuning to your vendor formats,
   and wiring into your accounting tools.

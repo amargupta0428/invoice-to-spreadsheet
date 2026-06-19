@@ -32,18 +32,19 @@ has never seen before, from any vendor, in any layout.
 Automation is only useful if you can trust it without re-checking everything by hand. Three
 deliberate choices make that possible:
 
-- **It never invents data.** If a field isn't on the invoice, it's left blank rather than
-  guessed.
-- **It tells you when it's unsure.** On a low-quality scan, any field it had to infer is
-  flagged for a quick human check — so your attention goes exactly where it's needed.
+- **It reads messy real-world inputs.** A new vendor's layout or a skewed, shadowed phone
+  photo — it still pulls the legible fields correctly.
+- **It can point you to the shaky bits.** On a rough scan it does its best to flag fields
+  it's unsure about, so a quick human check lands where it's most likely needed — a
+  best-effort assist, not a substitute for a glance at the numbers.
 - **It knows what it's not.** Hand it something that isn't an invoice and it says so,
   instead of returning nonsense.
 
 ## The result
 
 What was a manual, error-prone retyping task becomes a few-second upload. The output drops
-straight into a spreadsheet, and the only human step left is a glance at anything flagged
-for review — not re-keying every number.
+straight into a spreadsheet, and the only human step left is a quick spot-check of the
+numbers — not re-keying every field.
 
 ## What a build for your business would add
 
