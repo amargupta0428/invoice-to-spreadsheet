@@ -48,6 +48,6 @@ for review — not re-keying every number.
 ## What a build for your business would add
 
 This is a demonstration on generic invoices. A version built for a specific business goes
-further: tuned to your vendors' formats, connected directly to your spreadsheet,
-accounting software, or CRM, set up to process invoices in batches, and sized for your real
-monthly volume — so the data entry simply stops being something anyone has to do.
+further: **batch processing across your full invoice volume**, tuned to your vendors'
+formats, and wired directly into your spreadsheet, accounting software, or CRM — so the data
+entry simply stops being something anyone has to do.

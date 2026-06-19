@@ -16,11 +16,24 @@ This tool reads invoices the way a person does — so a layout it has never seen
 
 ## Input → output
 
-| Input: a vendor's invoice PDF | Output: structured, exportable data |
-| --- | --- |
-| ![Input invoice](docs/screenshots/input-invoice.png) | ![Extracted result](docs/screenshots/result.png) |
+**1. A clean vendor invoice — the baseline**
 
-*Real output from the running tool — upload a PDF, get the extracted table, download CSV/Excel.*
+| Input: vendor invoice PDF | Output: structured, exportable data |
+| --- | --- |
+| ![Clean vendor invoice input](docs/screenshots/input-invoice.png) | ![Extracted result](docs/screenshots/result.png) |
+
+**2. A scanned receipt — where it flags uncertainty for review**
+
+The harder, real-world case. On a low-quality scan the model extracts what it can and marks
+the fields it isn't sure about with a "verify" flag — here, the receipt number and the tax —
+instead of silently guessing. That's the difference between a parlor trick and something a
+business can actually trust with its books.
+
+| Input: scanned / photographed receipt | Output: extracted data, low-confidence fields flagged |
+| --- | --- |
+| ![Scanned receipt input](docs/screenshots/receipt-input.png) | ![Extracted result with verify flags](docs/screenshots/receipt-result.png) |
+
+*Real output from the running tool — upload a file, get the extracted table, download CSV/Excel.*
 
 ## How it works
 
@@ -66,13 +79,14 @@ through the Vercel AI Gateway (zero-config on Vercel). Override with `EXTRACTION
 
 ## Limitations (honest version)
 
-- It's a **demo**, scoped to single invoices, not a batch pipeline. Cost is ~a cent or two
-  per invoice on `gpt-4o`.
+- It's a **demo** focused on extraction quality for one document at a time. Cost is ~a cent
+  or two per invoice on `gpt-4o`.
 - Accuracy is high on clean documents; very low-quality scans can still misread a field —
   which is exactly why low-confidence flagging exists. **Numbers should be spot-checked**
   before they hit accounting.
-- No persistence, auth, or accounting-system integration here — those are what a real
-  client build would add (their vendor formats, their volume, their tools).
+- No persistence, auth, or accounting-system integration in the demo. A real client build
+  adds **batch processing across your full invoice volume**, tuning to your vendor formats,
+  and wiring into your accounting tools.
 
 ## Stack
 
